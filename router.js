@@ -1,9 +1,17 @@
 var express = require('express');
 var router = express.Router();
-var rootdir = __dirname + '/public/';
+var rootdir = __dirname + '/views/';
 
 router.get('/login', function (request, response) {
-    response.sendFile(rootdir + 'index.html');
+    response.sendFile(rootdir + '/index.html');
+});
+
+router.get('/mapa', function (request, response) {
+    response.sendFile(rootdir + '/funciona.html');
+});
+
+router.post('/login', function(request, response){
+    
 });
 
 router.get(/^(.+)$/, function (request, response) {
@@ -11,19 +19,3 @@ router.get(/^(.+)$/, function (request, response) {
 });
 
 exports.route = router;
-
-//module.exports = function (app) {
-//
-//    // devolver todos los Personas
-//    app.get('/api/persona', Controller.getPersona);
-//    // Crear una nueva Persona
-//    app.post('/api/persona', Controller.setPersona);
-//    // Modificar los datos de una Persona
-//    app.put('/api/persona/:persona_id', Controller.updatePersona);
-//    // Borrar una Persona
-//    app.delete('/api/persona/:persona_id', Controller.removePersona);
-//    // application 
-//    app.get('*', function (req, res) {
-//        res.sendfile('./angular/index.html'); // Carga única de la vista
-//    });
-//};
