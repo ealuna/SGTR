@@ -1,0 +1,18 @@
+{
+    "method": "GET",      
+    "uri": "http://terranorte.esinergy.com:8020/terranorte/Track",
+    "qs": {
+        "page": "map.device",
+        "page_cmd": "mapupd",
+        "date_tz": "GMT-05:00",
+        "device": "",
+        "limit": "1",
+        "limType": "last"
+    },
+    "headers": {
+        "cookie": ""
+    },      
+    "agentOptions": {
+        "secureProtocol": "SSLv3_method"
+    }
+}

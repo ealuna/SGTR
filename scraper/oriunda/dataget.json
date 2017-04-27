@@ -1,0 +1,18 @@
+{
+  "method": "GET",      
+  "uri": "http://oriunda.esinergy.com:8020/oriunda/Track",
+  "qs": {
+    "page":"map.fleet",
+    "page_cmd":"mapupd",
+    "date_fr":"",
+    "date_tz":"GMT-05:00",
+    "group":"all",
+    "limType":"last"
+  },
+  "headers": {
+    "cookie":""
+  },      
+  "agentOptions": {
+    "secureProtocol": "SSLv3_method"
+  }
+}
