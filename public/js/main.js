@@ -1,33 +1,40 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-var socket = io.connect('http://localhost:8027', { 'forceNew': true });
+var socket = io.connect('192.168.1.203:8027/mapa', {'forceNew': true});
 
-socket.on('messages', function(data) {  
-  console.log(data);
-  render(data);
-})
+var map;
+var device;
 
-function render (data) {  
-  var html = data.map(function(elem, index) {
-    return(`<div>
-              <strong>${elem.author}</strong>:
-              <em>${elem.text}</em>
-            </div>`);
-  }).join(" ");
-
-  document.getElementById('messages').innerHTML = html;
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -11.970892, lng: -77.071365},
+        zoom: 12
+    });
 }
 
-function addMessage(e) {  
-  var message = {
-    author: document.getElementById('username').value,
-    text: document.getElementById('texto').value
-  };
+socket.on('mapa', function (data) {    
+    var device = new google.maps.Marker({
+        position: data.position,
+        map: map,
+        title: data.status
+    });
+});
 
-  socket.emit('new-message', message);
-  return false;
-}
+//function render(data) {
+//    var html = data.map(function (elem, index) {
+//        return(`<div>
+//              <strong>${elem.author}</strong>:
+//              <em>${elem.text}</em>
+//            </div>`);
+//    }).join(" ");
+//    document.getElementById('messages').innerHTML = html;
+//}
+
+//function addMessage(e) {
+//    var message = {
+//        author: document.getElementById('username').value,
+//        text: document.getElementById('texto').value
+//    };
+//
+//    socket.emit('new-message', message);
+//    return false;
+//}
 

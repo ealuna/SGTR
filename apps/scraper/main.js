@@ -1,12 +1,22 @@
-//var data = require('./config/terranorte');
+var data = require('./config/terranorte');
 var parser = require('./parser');
 var connection = require('./connection');
 
-exports.scrap = function (data, callback) {
-    connection.get(data, function (value) {
+exports.group = function (callback) {
+    connection.get(data.group, function (value) {
         parser.getParsed(value, function (result) {
-            console.log(JSON.stringify(result));
+            //console.log(JSON.stringify(result));
             callback(JSON.stringify(result));
+        });
+    });
+};
+
+exports.device = function (id, callback) {
+    data.device.qs['device'] = id;
+    connection.get(data.device, function (value) {
+        parser.getParsed(value, function (result) {
+            //console.log(JSON.stringify(result));
+            callback(result);
         });
     });
 };

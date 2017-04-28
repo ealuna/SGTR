@@ -15,14 +15,20 @@ function dataParser(result, callback) {
         var arrayData = data[i]['P'].toString().split("|");
         var devices = {
             iddevice: data[i]['$'].id.toString(),
-            idtransporte: arrayData[0],
-            desc: arrayData[1],
+            vehicle: arrayData[0],
+            desc: arrayData[1].replace(/.*?\(|\)/g, ''),
             date: arrayData[3],
             time: arrayData[4],
-            status: arrayData[6],
-            lat: arrayData[8],
-            lon: arrayData[9],
-            dir: arrayData[20].replace(/\"/g, '')
+            status: arrayData[6].replace(/\\u([\d\w]{4})/gi,
+                    function (match, grp) {
+                        return String.fromCharCode(parseInt(grp, 16));
+                    }),
+            lat: parseFloat(arrayData[8]),
+            lon: parseFloat(arrayData[9]),
+            dir: arrayData[20].replace(/\\u([\d\w]{4})/gi,
+                    function (match, grp) {
+                        return String.fromCharCode(parseInt(grp, 16));
+                    }).replace(/\"/g, '')
         };
         arrayDevices.push(devices);
     }
