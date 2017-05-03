@@ -1,0 +1,12 @@
+/* 
+    Created on : 03-may-2017, 8:23:20
+    Author     : Edward Luna Noriega
+*/
+#map {
+    height: 100%
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}

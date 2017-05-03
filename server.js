@@ -3,6 +3,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var scraper = require('./apps/scraper/main');
+var pass = require('./socket');
+var conn = require('./connection');
 
 app.use(express.static('public'));
 
@@ -14,9 +16,11 @@ exports.iniciar = function (route) {
 };
 
 io.of('/mapa').on('connection', function (socket) {
-    console.log('Alguien se ha conectado con Sockets');
+    console.log(socket);
+
     setIntervalAndExecute(function () {
-        scraper.device('352544070751905', function (value) {
+        scraper.device('352544070752390', function (value) {
+            console.log(value[0].vehicle);
             socket.emit('mapa', {
                 status: value[0].status,
                 position: {lat: value[0].lat
@@ -24,6 +28,15 @@ io.of('/mapa').on('connection', function (socket) {
             });
         });
     }, 10000);
+
+});
+
+io.of('/clientes').on('connection', function(socket){    
+    socket.on('clientes', function (value) {
+        conn.getClientes(value, function (value) {
+            socket.emit('cli', value);
+        });
+    });
 });
 
 function setIntervalAndExecute(fn, t) {
@@ -38,8 +51,33 @@ function setIntervalAndExecute(fn, t) {
 //  
 //  socket.emit('messages', messages);
 //  
-//  socket.on('new-message', function(data) {
-//    messages.push(data);
-//    io.sockets.emit('messages', messages);
-//  });
+
+
+//socket.on('device', function (id) {
+////    messages.push(data);
+////    io.sockets.emit('messages', messages);
 //});
+
+function emitDevice(socket, id) {
+    setIntervalAndExecute(function () {
+        try {
+            scraper.device(id, function (value) {
+                socket.emit('mapa', value[0]);
+            });
+        } catch (error) {
+            console.log('Error: ' + error);
+        }
+    }, 10000);
+}
+
+function emitGroup(socket) {
+    setIntervalAndExecute(function () {
+        try {
+            scraper.group(function (value) {
+                socket.emit('mapa', value);
+            });
+        } catch (error) {
+            console.log('Error: ' + error);
+        }
+    }, 10000);
+}

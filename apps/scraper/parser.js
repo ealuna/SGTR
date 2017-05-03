@@ -15,7 +15,7 @@ function dataParser(result, callback) {
         var arrayData = data[i]['P'].toString().split("|");
         var devices = {
             iddevice: data[i]['$'].id.toString(),
-            vehicle: arrayData[0],
+            vehicle: arrayData[0].replace(/.*?-/g, ''),
             desc: arrayData[1].replace(/.*?\(|\)/g, ''),
             date: arrayData[3],
             time: arrayData[4],
@@ -25,6 +25,7 @@ function dataParser(result, callback) {
                     }),
             lat: parseFloat(arrayData[8]),
             lon: parseFloat(arrayData[9]),
+            kmh: arrayData[12],
             dir: arrayData[20].replace(/\\u([\d\w]{4})/gi,
                     function (match, grp) {
                         return String.fromCharCode(parseInt(grp, 16));

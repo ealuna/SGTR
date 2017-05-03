@@ -5,27 +5,15 @@
         <meta charset="UTF-8">
         <meta name="viewport" 
               content="width=device-width, initial-scale=1.0">
-        <style>
-            /* Always set the map height explicitly to define the size of the div
-             * element that contains the map. */
-            #map {
-                height: 100%;
-            }
-            /* Optional: Makes the sample page fill the window. */
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-        </style>
+        <link rel="stylesheet" href="/css/mapa.css">
+        <script 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqHbqBdi02O7RkIsu75B89vjsRO2lEbl4">
+        </script>
     </head>
     <body>
         <div id="map"></div>
-        <script 
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqHbqBdi02O7RkIsu75B89vjsRO2lEbl4&callback=initMap"
-            async defer>
-        </script>
         <script src="/socket.io/socket.io.js"></script>
-        <script src="/js/main.js"></script>
+        <script src="/js/jquery-3.2.1.min.js"></script>
+        <script src="/js/mapa.js"></script>
     </body>
 </html>
