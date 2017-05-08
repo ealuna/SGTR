@@ -15,23 +15,36 @@ exports.iniciar = function (route) {
     app.use('/', route);
 };
 
+//io.of('/mapa').on('connection', function (socket) {
+//    conn.getFlota(function (value) {
+//        socket.emit('flota', value);
+//    });
+//    setIntervalAndExecute(function () {
+//        scraper.device('352544070752390', function (value) {
+//            console.log(value[0].vehicle);
+//            socket.emit('mapa', {
+//                status: value[0].status,
+//                position: {lat: value[0].lat
+//                    , lng: value[0].lon}
+//            });
+//        });
+//    }, 10000);
+//});
 io.of('/mapa').on('connection', function (socket) {
-    console.log(socket);
-
+    conn.getFlota(function (value) {
+        socket.emit('flota', value);
+    });
     setIntervalAndExecute(function () {
-        scraper.device('352544070752390', function (value) {
-            console.log(value[0].vehicle);
-            socket.emit('mapa', {
-                status: value[0].status,
-                position: {lat: value[0].lat
-                    , lng: value[0].lon}
-            });
+        scraper.group(function (value) {
+            socket.emit('flotaMapa', JSON.parse(value));
         });
     }, 10000);
-
 });
 
-io.of('/clientes').on('connection', function(socket){    
+
+
+
+io.of('/clientes').on('connection', function (socket) {
     socket.on('clientes', function (value) {
         conn.getClientes(value, function (value) {
             socket.emit('cli', value);

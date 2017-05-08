@@ -3,10 +3,12 @@ var socket2 = io.connect('192.168.1.203:8027/clientes', {'forceNew': true});
 
 var map;
 var device = [];
-var clientes = new google.maps.Marker();
+var clientes = [];
+var flota = {};
+var excluir = {};
 
 
-socket2.emit('clientes', '588');
+//socket2.emit('clientes', '588');
 
 //function initMap() {
 //    map = new google.maps.Map(document.getElementById('map'), {
@@ -17,8 +19,22 @@ socket2.emit('clientes', '588');
 $(document).ready(function () {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: -11.970892, lng: -77.071365},
+        mapTypeControl: false,
+        fullscreenControl: true,
         zoom: 12
     });
+});
+
+socket.on('flota', function (value) {
+    var html = '<select id="flota">';
+    html += '<option value="all"> all </option>';
+    for (var i = 0; i < value.length; i++) {
+        html += '<option value="' + value[i].idTransportista + '">';
+        html += ' T-' + value[i].idTransportista;
+        html += '</option>';
+    }
+    html += '</select>';
+    $('#floating-panel').html(html);
 });
 
 socket.on('mapa', function (data) {
@@ -26,28 +42,69 @@ socket.on('mapa', function (data) {
         position: data.position,
         title: data.status
     });
-    if(device.length === 0){
+    if (device.length === 0) {
         device.push(newDevice);
         newDevice.setMap(map);
-    }else{
-        device[device.length-1].setMap(null);
+    } else {
+        lastIndex(device).setMap(null);
         device.push(newDevice);
         newDevice.setMap(map);
     }
     console.log(data.position);
 });
 
+socket.on('flotaMapa', function (data) {
+    for (var i = 0; i < data.length; i++) {
+        var newDevice = new google.maps.Marker({
+            position: {lat: data[i].lat, lng: data[i].lon},
+            title: data[i].status,
+            id: data[i].vehicle
+        });
+        if (flota[data[i].vehicle] && !excluir[data[i].vehicle]) {
+            flota[data[i].vehicle].setMap(null);
+        }
+        flota[data[i].vehicle] = newDevice;
+        if (!excluir[data[i].vehicle]) {
+            newDevice.setMap(map);
+        }
+    }
+    console.log(flota);
+});
+
+$('#flota').change(function () {
+    console.log($(this).val());
+//    excluir = {};
+//    console.log('Hola');
+//    var device = $('#flota').val();
+//    $.each(flota, function (key, value) {
+//        if (key != device) {
+//            excluir[device] = value;
+//            value.setMap(null);
+//        }
+//    });
+});
+
+function test(dev) {
+    $.each(flota, function (key, value) {
+        if (key != dev) {
+            value.setMap(null);
+        }
+    });
+}
+
 socket2.on('cli', function (data) {
     //console.log(data);
     for (var i = 0; i < data.length; i++) {
         var cliente = new google.maps.Marker({
-            position: {lat: parseFloat(data[i].YCoord)
-                , lng: parseFloat(data[i].XCoord)},
+            position: {lat: parseFloat(data[i].YCoord),
+                lng: parseFloat(data[i].XCoord)},
             title: data[i].nombreCliente,
             icon: '/imgs/cliente.png'
         });
         cliente.setMap(map);
+        clientes.push(cliente);
     }
+    //var markerCluster = new MarkerClusterer(map, clientes, {minimumClusterSize: 2, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 });
 
 
@@ -81,3 +138,6 @@ socket2.on('cli', function (data) {
 //    return false;
 //}
 
+function lastIndex(array) {
+    return array[array.length - 1];
+}

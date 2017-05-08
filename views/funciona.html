@@ -9,9 +9,22 @@
         <script 
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqHbqBdi02O7RkIsu75B89vjsRO2lEbl4">
         </script>
+        <style>
+            #floating-panel {
+                position:absolute;
+                left:10px;
+                top: 10px;
+                z-index:3;
+            }
+        </style>
     </head>
     <body>
+        <div id="floating-panel">
+        </div>
         <div id="map"></div>
+        <script 
+            src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+        </script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/jquery-3.2.1.min.js"></script>
         <script src="/js/mapa.js"></script>
