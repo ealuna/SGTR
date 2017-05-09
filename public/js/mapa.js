@@ -54,6 +54,7 @@ socket.on('mapa', function (data) {
 });
 
 socket.on('flotaMapa', function (data) {
+    console.log(excluir);
     for (var i = 0; i < data.length; i++) {
         var newDevice = new google.maps.Marker({
             position: {lat: data[i].lat, lng: data[i].lon},
@@ -71,42 +72,45 @@ socket.on('flotaMapa', function (data) {
     console.log(flota);
 });
 
-$('#flota').change(function () {
-    console.log($(this).val());
-//    excluir = {};
-//    console.log('Hola');
-//    var device = $('#flota').val();
-//    $.each(flota, function (key, value) {
-//        if (key != device) {
-//            excluir[device] = value;
-//            value.setMap(null);
-//        }
-//    });
-});
-
-function test(dev) {
+$(document).on("change", "#flota", function () {
+    borrarClientes();    
+    var selected = $(this).val();
     $.each(flota, function (key, value) {
-        if (key != dev) {
+        if (selected === 'all' && excluir[key]) {
+            excluir[key] = null;
+            value.setMap(map);
+        } else if (key !== selected) {
+            excluir[key] = value;
             value.setMap(null);
+        } else {
+            socket2.emit('clientes', selected);
+            excluir[key] = null;
+            value.setMap(map);
         }
     });
-}
+});
 
 socket2.on('cli', function (data) {
-    //console.log(data);
     for (var i = 0; i < data.length; i++) {
         var cliente = new google.maps.Marker({
             position: {lat: parseFloat(data[i].YCoord),
                 lng: parseFloat(data[i].XCoord)},
             title: data[i].nombreCliente,
-            icon: '/imgs/cliente.png'
+            icon: '/imgs/cliente.png',
+            map: map
         });
-        cliente.setMap(map);
         clientes.push(cliente);
     }
     //var markerCluster = new MarkerClusterer(map, clientes, {minimumClusterSize: 2, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 });
 
+function borrarClientes() {
+    if (clientes.length) {
+        for (var i = 0; i < clientes.length; i++) {
+            clientes[i].setMap(null);
+        }
+    }
+}
 
 //socket.on('clientes', function (data) {
 //    for (var i = 0; i < data.length; i++) {
