@@ -1,5 +1,5 @@
-var socket = io.connect('192.168.1.203:8027/mapa', {'forceNew': true});
-var socket2 = io.connect('192.168.1.203:8027/clientes', {'forceNew': true});
+var socket = io.connect('/mapa', {'forceNew': true});
+var socket2 = io.connect('/clientes', {'forceNew': true});
 
 var map;
 var device = [];
@@ -42,7 +42,7 @@ socket.on('mapa', function (data) {
         position: data.position,
         title: data.status
     });
-    if (device.length === 0) {
+    if (device.length) {
         device.push(newDevice);
         newDevice.setMap(map);
     } else {
@@ -61,6 +61,7 @@ socket.on('flotaMapa', function (data) {
             title: data[i].status,
             id: data[i].vehicle
         });
+
         if (flota[data[i].vehicle] && !excluir[data[i].vehicle]) {
             flota[data[i].vehicle].setMap(null);
         }
@@ -73,8 +74,8 @@ socket.on('flotaMapa', function (data) {
 });
 
 $(document).on("change", "#flota", function () {
-    borrarClientes();    
-    var selected = $(this).val();
+    borrarClientes();
+    var selected = $(this).val();    
     $.each(flota, function (key, value) {
         if (selected === 'all' && excluir[key]) {
             excluir[key] = null;
@@ -91,17 +92,23 @@ $(document).on("change", "#flota", function () {
 });
 
 socket2.on('cli', function (data) {
+    console.log(data);
     for (var i = 0; i < data.length; i++) {
         var cliente = new google.maps.Marker({
-            position: {lat: parseFloat(data[i].YCoord),
-                lng: parseFloat(data[i].XCoord)},
+            position: {
+                lat: parseFloat(data[i].YCoord),
+                lng: parseFloat(data[i].XCoord)
+            },
             title: data[i].nombreCliente,
             icon: '/imgs/cliente.png',
             map: map
         });
         clientes.push(cliente);
     }
-    //var markerCluster = new MarkerClusterer(map, clientes, {minimumClusterSize: 2, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+//    var markerCluster = new MarkerClusterer(map, clientes, {
+//        minimumClusterSize: 2,
+//        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+//    });
 });
 
 function borrarClientes() {
@@ -109,6 +116,11 @@ function borrarClientes() {
         for (var i = 0; i < clientes.length; i++) {
             clientes[i].setMap(null);
         }
+//        $.each(clientes, function (key, item) {
+//            console.log(clientes[key].map);
+//            item.setMap(null);
+//            console.log(clientes[key].map);
+//        });
     }
 }
 
