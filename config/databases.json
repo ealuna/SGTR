@@ -1,0 +1,16 @@
+{
+    "terranorte": {
+        "host": "192.168.1.203",
+        "type": "mssql",
+        "name": "terranorte",
+        "user": "systerra",
+        "password": "2345"
+    },
+    "oriunda": {
+        "host": "192.168.1.203",
+        "type": "mssql",
+        "name": "oriunda",
+        "user": "systerra",
+        "password": "2345"
+    }
+}

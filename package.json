@@ -14,9 +14,13 @@
     "express": "^4.15.2",
     "fs": "0.0.1-security",
     "request": "^2.81.0",
+    "sequelize": "^3.30.4",
+    "tedious": "^2.0.0",
     "xml2js": "^0.4.17"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "start-forever": "forever start main.js",
+    "stop": "forever stop main.js"
   }
 }

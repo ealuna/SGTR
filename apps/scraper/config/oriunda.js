@@ -11,7 +11,7 @@ exports.login = {
     formData: {
         account: 'oriunda',
         user: 'oriunda',
-        password: '123oriunda'
+        password: 'oriunda123'
     }
 };
 exports.device = {

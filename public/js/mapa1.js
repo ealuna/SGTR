@@ -5,7 +5,12 @@
  */
 
 
-
+//function initMap() {
+//    map = new google.maps.Map(document.getElementById('map'), {
+//        center: {lat: -11.970892, lng: -77.071365},
+//        zoom: 12
+//    });
+//}
 
 
 

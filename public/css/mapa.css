@@ -10,3 +10,9 @@ html, body {
     margin: 0;
     padding: 0;
 }
+#floating-panel {
+    position:absolute;
+    left:10px;
+    top: 10px;
+    z-index:3;
+}

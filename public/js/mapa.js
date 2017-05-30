@@ -21,7 +21,15 @@ $(document).ready(function () {
         center: {lat: -11.970892, lng: -77.071365},
         mapTypeControl: false,
         fullscreenControl: true,
-        zoom: 12
+        zoom: 12,
+        styles: [
+            {
+                featureType: "poi",
+                stylers: [
+                    {visibility: "off"}
+                ]
+            }
+        ]
     });
 });
 
@@ -29,8 +37,8 @@ socket.on('flota', function (value) {
     var html = '<select id="flota">';
     html += '<option value="all"> all </option>';
     for (var i = 0; i < value.length; i++) {
-        html += '<option value="' + value[i].idTransportista + '">';
-        html += ' T-' + value[i].idTransportista;
+        html += '<option value="' + value[i].id + '">';
+        html += ' T-' + value[i].id;
         html += '</option>';
     }
     html += '</select>';
@@ -75,7 +83,7 @@ socket.on('flotaMapa', function (data) {
 
 $(document).on("change", "#flota", function () {
     borrarClientes();
-    var selected = $(this).val();    
+    var selected = $(this).val();
     $.each(flota, function (key, value) {
         if (selected === 'all' && excluir[key]) {
             excluir[key] = null;
