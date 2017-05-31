@@ -1,11 +1,10 @@
-var data = require('./config/terranorte');
+var data = require('./config/oriunda');
 var request = require('request');
 
 var login = data.login;
 
 function post(options, callback) {
     request(login, function (error, response, body) {
-        console.log(error);
         if (!error) {
             var cookie = response.headers['set-cookie'].toString();
             options.headers['cookie'] = cookie;
@@ -19,7 +18,6 @@ function post(options, callback) {
 
 exports.get = function (options, callback) {
     request(options, function (error, response, body) {
-        console.log(error);
         if (body === 'LOGOUT\n' || error) {
             console.log(error);
             post(options, function (result) {

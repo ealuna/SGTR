@@ -14,8 +14,9 @@ router.get('/prueba2', function (request, response) {
     response.sendFile(rootdir + '/test.html');
 });
 
-router.post('/rest/:db/:task', function (request, response) {
+router.post('/get/:db/:task', function (request, response) {
     var conn = require('./models/connection');
+    //console.log(request);
     conn.databases[request.params['db']]
             .query('EXEC ' + request.params['task']).spread(
             function (res) {
@@ -23,7 +24,7 @@ router.post('/rest/:db/:task', function (request, response) {
             });
 });
 
-router.get('/rest/:db/:task/:id', function (request, response) {
+router.post('/get/:db/:task/:id', function (request, response) {
     var conn = require('./models/connection');
     conn.databases[request.params['db']]
             .query('EXEC ' + request.params['task'] + ' ' + request.params['id']).spread(

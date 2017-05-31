@@ -1,11 +1,11 @@
-var data = require('./config/terranorte');
+var data = require('./config/oriunda');
 var parser = require('./parser');
 var connection = require('./connection');
 
 exports.group = function (callback) {
     connection.get(data.group, function (value) {
         parser.getParsed(value, function (result) {
-            console.log(JSON.stringify(result));
+            //console.log(JSON.stringify(result));
             callback(JSON.stringify(result));
         });
     });

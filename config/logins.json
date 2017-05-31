@@ -1,36 +1,34 @@
 {
-    "logins": {
-        "terranorte": {
-            "method": "POST",
-            "uri": "http://terranorte.esinergy.com:8020/terranorte/Track",
-            "qs": {
-                "lfid": "default"
-            },
-            "headers": {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Cache-Control": "no-cache"
-            },
-            "formData": {
-                "account": "terranorte",
-                "user": "terranorte",
-                "password": "123terranorte"
-            }
+    "terranorte": {
+        "method": "POST",
+        "uri": "http://terranorte.esinergy.com:8020/terranorte/Track",
+        "qs": {
+            "lfid": "default"
         },
-        "oriunda": {
-            "method": "POST",
-            "uri": "http://oriunda.esinergy.com:8020/oriunda/Track",
-            "qs": {
-                "lfid": "default"
-            },
-            "headers": {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Cache-Control": "no-cache"
-            },
-            "formData": {
-                "account": "oriunda",
-                "user": "oriunda",
-                "password": "oriunda123"
-            }
+        "headers": {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Cache-Control": "no-cache"
+        },
+        "formData": {
+            "account": "terranorte",
+            "user": "terranorte",
+            "password": "123terranorte"
+        }
+    },
+    "oriunda": {
+        "method": "POST",
+        "uri": "http://oriunda.esinergy.com:8020/oriunda/Track",
+        "qs": {
+            "lfid": "default"
+        },
+        "headers": {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Cache-Control": "no-cache"
+        },
+        "formData": {
+            "account": "oriunda",
+            "user": "oriunda",
+            "password": "oriunda123"
         }
     }
 }

@@ -5,8 +5,11 @@ var io = require('socket.io')(server);
 var scraper = require('./apps/scraper/main');
 var pass = require('./socket');
 var conn = require('./connection');
+var conn2 = require('./models/connection');
+var compression = require('compression');
 
 app.use(express.static('public'));
+app.use(compression());
 
 exports.iniciar = function (route) {
     server.listen(8027, function () {
@@ -34,6 +37,7 @@ io.of('/mapa').on('connection', function (socket) {
     conn.getFlota(function (value) {
         socket.emit('flota', value);
     });
+    socket.emit('databases', conn2.dbnames);
     setIntervalAndExecute(function () {
         scraper.group(function (value) {
             socket.emit('flotaMapa', JSON.parse(value));
@@ -41,16 +45,25 @@ io.of('/mapa').on('connection', function (socket) {
     }, 10000);
 });
 
-
-
-
 io.of('/clientes').on('connection', function (socket) {
     socket.on('clientes', function (value) {
-        conn.getClientes(value, function (value) {
-            socket.emit('cli', value);
-        });
+        conn2.databases['terranorte']
+                .query('EXEC clientesDia ' + value).spread(
+                function (res) {
+                    socket.emit('cli', res);
+                });
     });
 });
+
+io.of('/rutas').on('connection', function (socket) {
+    conn2.databases['terranorte']
+            .query('EXEC rutasDia').spread(
+            function (res) {
+                socket.emit('rut', res);
+            });
+});
+
+
 
 function setIntervalAndExecute(fn, t) {
     fn();

@@ -1,8 +1,13 @@
 var socket = io.connect('/mapa', {'forceNew': true});
 var socket2 = io.connect('/clientes', {'forceNew': true});
+var socket3 = io.connect('/rutas', {'forceNew': true});
+var imgPaths = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
 
+var database = "terranorte";
+var markerCluster;
 var map;
-var device = [];
+var device = {};
+var rutas = {};
 var clientes = [];
 var flota = {};
 var excluir = {};
@@ -28,73 +33,94 @@ $(document).ready(function () {
                 stylers: [
                     {visibility: "off"}
                 ]
-            }
+            },
+            {"stylers": [{"saturation": -100}]}
         ]
     });
+    cargarFlota(database);
 });
-
-socket.on('flota', function (value) {
-    var html = '<select id="flota">';
-    html += '<option value="all"> all </option>';
+socket.on('databases', function (value) {
+    $('#floating-panel').html('');
+    var html = '<select id="databases">';
     for (var i = 0; i < value.length; i++) {
-        html += '<option value="' + value[i].id + '">';
-        html += ' T-' + value[i].id;
+        html += '<option value="' + value[i] + '">';
+        html += value[i];
         html += '</option>';
     }
     html += '</select>';
     $('#floating-panel').html(html);
 });
+//socket.on('flota', function (value) {
+//    var html = '<select id="flota">';
+//    html += '<option value="all"> all </option>';
+//    for (var i = 0; i < value.length; i++) {
+//        html += '<option value="' + value[i].id + '">';
+//        html += ' T-' + value[i].id;
+//        html += '</option>';
+//    }
+//    html += '</select>';
+//    $('#floating-panel').html(html);
+//});
 
-socket.on('mapa', function (data) {
-    var newDevice = new google.maps.Marker({
-        position: data.position,
-        title: data.status
-    });
-    if (device.length) {
-        device.push(newDevice);
-        newDevice.setMap(map);
-    } else {
-        lastIndex(device).setMap(null);
-        device.push(newDevice);
-        newDevice.setMap(map);
-    }
-    console.log(data.position);
-});
+//socket.on('mapa', function (data) {
+//    var newDevice = new google.maps.Marker({
+//        position: data.position,
+//        title: data.id
+//    });
+//    if (device.length) {
+//        device.push(newDevice);
+//        newDevice.setMap(map);
+//    } else {
+//        lastIndex(device).setMap(null);
+//        device.push(newDevice);
+//        newDevice.setMap(map);
+//    }
+//    //console.log(data.position);
+//});
 
 socket.on('flotaMapa', function (data) {
-    console.log(excluir);
+    //console.log(excluir);
     for (var i = 0; i < data.length; i++) {
         var newDevice = new google.maps.Marker({
             position: {lat: data[i].lat, lng: data[i].lon},
-            title: data[i].status,
+            title: data[i].vehicle,
+            icon: '/imgs/truck2.png',
             id: data[i].vehicle
         });
 
-        if (flota[data[i].vehicle] && !excluir[data[i].vehicle]) {
-            flota[data[i].vehicle].setMap(null);
+        if (device[data[i].vehicle] && !excluir[data[i].vehicle]) {
+            device[data[i].vehicle].setMap(null);
         }
-        flota[data[i].vehicle] = newDevice;
+        device[data[i].vehicle] = newDevice;
         if (!excluir[data[i].vehicle]) {
             newDevice.setMap(map);
         }
     }
-    console.log(flota);
+    //console.log(flota);
 });
 
 $(document).on("change", "#flota", function () {
     borrarClientes();
+    borrarRutas();
     var selected = $(this).val();
     $.each(flota, function (key, value) {
         if (selected === 'all' && excluir[key]) {
-            excluir[key] = null;
-            value.setMap(map);
-        } else if (key !== selected) {
+            if (device[key]) {
+                excluir[key] = null;
+                device[key].setMap(map);
+            } else {
+
+            }
+        } else if (key !== selected && device[key]) {
             excluir[key] = value;
-            value.setMap(null);
+            device[key].setMap(null);
         } else {
-            socket2.emit('clientes', selected);
+            //socket2.emit('clientes', selected);
+            cargarClientes('terranorte', selected);
             excluir[key] = null;
-            value.setMap(map);
+            if (device[key]) {
+                device[key].setMap(map);
+            }
         }
     });
 });
@@ -108,19 +134,72 @@ socket2.on('cli', function (data) {
                 lng: parseFloat(data[i].XCoord)
             },
             title: data[i].nombreCliente,
-            icon: '/imgs/cliente.png',
+            icon: '/imgs/customer.png',
             map: map
         });
         clientes.push(cliente);
     }
-//    var markerCluster = new MarkerClusterer(map, clientes, {
+//    markerCluster = new MarkerClusterer(map, clientes, {
 //        minimumClusterSize: 2,
-//        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+//        maxZoom: 12,
+//        imagePath: imgPaths
 //    });
 });
 
+socket3.on('rut', function (data) {
+    //console.log(data);
+    var i, j, array;
+    for (i = 0; i < data.length; i++) {
+        var coords = data[i].coords.match(/-?\d+\.?\d*/g);
+        //console.log(coords)
+        for (j = 0, array = []; j < coords.length; j += 2) {
+            var lng = parseFloat(coords[j + 1]);
+            var lat = parseFloat(coords[j]);
+            array.push(new google.maps.LatLng(lng, lat).toJSON());
+        }
+        var polygon = new google.maps.Polygon({
+            paths: array,
+            strokeColor: '#ff6262', //rojo
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
+            fillColor: '#ff6262', //rojo
+            fillOpacity: 0.1,
+            title: data[i].ruta,
+            transporte: data[i].idTransportista,
+            planilla: data[i].numeroPlanilla,
+            clientes: data[i].numcli
+        });
+        if (!rutas[data[i].ruta]) {
+            rutas[data[i].ruta] = polygon;
+            rutas[data[i].ruta].setMap(map);
+        } else {
+
+        }
+    }
+//        
+//        var cliente = new google.maps.Marker({
+//            position: {
+//                lat: parseFloat(data[i].YCoord),
+//                lng: parseFloat(data[i].XCoord)
+//            },
+//            title: data[i].nombreCliente,
+//            icon: '/imgs/cliente.png',
+//            map: map
+//        });
+//        clientes.push(cliente);
+//    }
+//    markerCluster = new MarkerClusterer(map, clientes, {
+//        minimumClusterSize: 2,
+//        maxZoom: 12,
+//        imagePath: imgPaths
+//    });
+});
+
+
+
 function borrarClientes() {
     if (clientes.length) {
+        //markerCluster.remove();
         for (var i = 0; i < clientes.length; i++) {
             clientes[i].setMap(null);
         }
@@ -131,6 +210,67 @@ function borrarClientes() {
 //        });
     }
 }
+
+function borrarRutas() {
+    if (rutas) {
+        //markerCluster.remove();
+//        for (var i = 0; i < rutas.length; i++) {
+//            rutas[i].setMap(null);
+//        }
+        $.each(rutas, function (key, item) {
+            //console.log(item);
+            //rutas[key].map = null;
+
+            item.setMap(null);
+            //console.log(clientes[key].map);
+        });
+    }
+}
+
+
+
+function cargarFlota(database) {
+    $.ajax({
+        url: "get/" + database + "/flota",
+        type: "POST",
+        //data: {cbxEsquema: esquema},
+        success: function (respuesta) {
+
+            var html = '<select id="flota">';
+            html += '<option value="all"> all </option>';
+            for (var i = 0; i < respuesta.length; i++) {
+                html += '<option value="' + respuesta[i].id + '">';
+                html += respuesta[i].id;
+                html += '</option>';
+                flota[respuesta[i].id] = respuesta[i];
+            }
+            html += '</select>';
+            $('#flota-panel').html(html);
+        }});
+}
+
+function cargarClientes(database, transporte) {
+    $.ajax({
+        url: "get/" + database + "/clientesDia/" + transporte,
+        type: "POST",
+        //data: {cbxEsquema: esquema},
+        success: function (respuesta) {
+            //console.log(respuesta);
+            for (var i = 0; i < respuesta.length; i++) {
+                var cliente = new google.maps.Marker({
+                    position: {
+                        lat: parseFloat(respuesta[i].YCoord),
+                        lng: parseFloat(respuesta[i].XCoord)
+                    },
+                    title: respuesta[i].nombreCliente,
+                    icon: '/imgs/customer.png',
+                    map: map
+                });
+                clientes.push(cliente);
+            }
+        }});
+}
+
 
 //socket.on('clientes', function (data) {
 //    for (var i = 0; i < data.length; i++) {

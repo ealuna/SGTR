@@ -27,3 +27,4 @@ for (var i = 0; i < dbnames.length; i++) {
     );
 }
 exports.databases = db;
+exports.dbnames = dbnames;

@@ -16,7 +16,7 @@ exports.getFlota = function (callback) {
         method: 'GET',
         uri: url + '/flota'
     }, function (value) {
-        console.log(value);
+        //console.log(value);
         callback(JSON.parse(value));
     });
 };

@@ -1,38 +1,36 @@
 {
-    "trackers": {
-        "terranorte": {
-            "method": "GET",
-            "uri": "http://terranorte.esinergy.com:8020/terranorte/Track",
-            "qs": {
-                "page": "map.fleet",
-                "page_cmd": "mapupd",
-                "date_tz": "GMT-05:00",
-                "group": "all",
-                "limType": "last"
-            },
-            "headers": {
-                "cookie": ""
-            },
-            "agentOptions": {
-                "secureProtocol": "SSLv3_method"
-            }
+    "terranorte": {
+        "method": "GET",
+        "uri": "http://terranorte.esinergy.com:8020/terranorte/Track",
+        "qs": {
+            "page": "map.fleet",
+            "page_cmd": "mapupd",
+            "date_tz": "GMT-05:00",
+            "group": "all",
+            "limType": "last"
         },
-        "oriunda": {
-            "method": "GET",
-            "uri": "http://oriunda.esinergy.com:8020/oriunda/Track",
-            "qs": {
-                "page": "map.fleet",
-                "page_cmd": "mapupd",
-                "date_tz": "GMT-05:00",
-                "group": "all",
-                "limType": "last"
-            },
-            "headers": {
-                "cookie": ""
-            },
-            "agentOptions": {
-                "secureProtocol": "SSLv3_method"
-            }
+        "headers": {
+            "cookie": ""
+        },
+        "agentOptions": {
+            "secureProtocol": "SSLv3_method"
+        }
+    },
+    "oriunda": {
+        "method": "GET",
+        "uri": "http://oriunda.esinergy.com:8020/oriunda/Track",
+        "qs": {
+            "page": "map.fleet",
+            "page_cmd": "mapupd",
+            "date_tz": "GMT-05:00",
+            "group": "all",
+            "limType": "last"
+        },
+        "headers": {
+            "cookie": ""
+        },
+        "agentOptions": {
+            "secureProtocol": "SSLv3_method"
         }
     }
 }
