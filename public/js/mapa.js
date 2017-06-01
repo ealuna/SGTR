@@ -9,6 +9,7 @@ var map;
 var device = {};
 var rutas = {};
 var clientes = [];
+var clientes2 = {};
 var flota = {};
 var excluir = {};
 
@@ -33,8 +34,8 @@ $(document).ready(function () {
                 stylers: [
                     {visibility: "off"}
                 ]
-            },
-            {"stylers": [{"saturation": -100}]}
+            }
+            //,{"stylers": [{"saturation": -100}]}
         ]
     });
     cargarFlota(database);
@@ -255,7 +256,7 @@ function cargarClientes(database, transporte) {
         type: "POST",
         //data: {cbxEsquema: esquema},
         success: function (respuesta) {
-            //console.log(respuesta);
+            console.log(respuesta);
             for (var i = 0; i < respuesta.length; i++) {
                 var cliente = new google.maps.Marker({
                     position: {
@@ -266,6 +267,10 @@ function cargarClientes(database, transporte) {
                     icon: '/imgs/customer.png',
                     map: map
                 });
+                if (flota[respuesta[i].idTransportista]) {
+                    var id = flota[respuesta[i].idTransportista];
+                    clientes2[id][respuesta[i].idCliente] = cliente;
+                }
                 clientes.push(cliente);
             }
         }});

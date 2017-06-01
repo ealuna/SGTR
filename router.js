@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var rootdir = __dirname + '/views';
 
+
+
 router.get('/login', function (request, response) {
     response.sendFile(rootdir + '/index.html');
 });
@@ -23,6 +25,11 @@ router.post('/get/:db/:task', function (request, response) {
                 response.send(res);
             });
 });
+
+
+
+
+
 
 router.post('/get/:db/:task/:id', function (request, response) {
     var conn = require('./models/connection');

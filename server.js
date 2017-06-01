@@ -8,6 +8,10 @@ var conn = require('./connection');
 var conn2 = require('./models/connection');
 var compression = require('compression');
 
+var bodyParser = require('body-parser')
+
+app.use(bodyParser.json());
+
 app.use(express.static('public'));
 app.use(compression());
 
@@ -34,13 +38,13 @@ exports.iniciar = function (route) {
 //    }, 10000);
 //});
 io.of('/mapa').on('connection', function (socket) {
-    conn.getFlota(function (value) {
-        socket.emit('flota', value);
-    });
+//    conn.getFlota(function (value) {
+//        socket.emit('flota', value);
+//    });
     socket.emit('databases', conn2.dbnames);
     setIntervalAndExecute(function () {
         scraper.group(function (value) {
-            socket.emit('flotaMapa', JSON.parse(value));
+            socket.emit('flota', JSON.parse(value));
         });
     }, 10000);
 });
@@ -107,3 +111,11 @@ function emitGroup(socket) {
         }
     }, 10000);
 }
+
+app.post('/post/resultado/:db', function (request, response) {
+    //var conn = require('./models/connection');
+    console.log(request.body);
+    //response.send(request.body);
+    io.of('/mapa').emit('prueba', request.body);
+    response.send(request.body);
+});

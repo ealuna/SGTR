@@ -1,4 +1,4 @@
-var data = require('./config/oriunda');
+var data = require('./config/terranorte');
 var request = require('request');
 
 var login = data.login;

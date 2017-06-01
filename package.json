@@ -11,6 +11,7 @@
   "author": "Edward Luna Noriega",
   "contributors": [],
   "dependencies": {
+    "body-parser": "^1.17.2",
     "compression": "^1.6.2",
     "express": "^4.15.2",
     "fs": "0.0.1-security",
