@@ -1,5 +1,5 @@
 {
-    "terranorte1": {
+    "terranorte": {
         "host": "192.168.1.203",
         "type": "mssql",
         "name": "terranorte",
@@ -13,7 +13,7 @@
         "user": "systerra",
         "password": "2345"
     }, 
-    "terranorte": {
+    "terranorte1": {
         "host": "localhost",
         "type": "mssql",
         "name": "terranorte",

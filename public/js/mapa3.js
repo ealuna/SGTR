@@ -2,7 +2,6 @@ var socket = io.connect('/mapa', {'forceNew': true});
 var socket2 = io.connect('/clientes', {'forceNew': true});
 var socket3 = io.connect('/rutas', {'forceNew': true});
 var imgPaths = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
-
 var database = "terranorte";
 var markerCluster;
 var map;
@@ -10,7 +9,6 @@ var inicio = {lat: -11.970892, lng: -77.071365};
 var focus = null;
 var verclientes = true;
 var verrutas = true;
-
 var clientes2 = {};
 var planilla = {};
 var flota = {};
@@ -51,8 +49,6 @@ $(document).ready(function () {
     cargarClientes(database);
     pintarClientes(null);
 });
-
-
 socket.on('databases', function (value) {
     $('#floating-panel').html('');
     var html = '<select id="databases">';
@@ -64,7 +60,6 @@ socket.on('databases', function (value) {
     html += '</select>';
     $('#floating-panel').html(html);
 });
-
 socket.on('flota', function (data) {
     for (var i = 0; i < data.length; i++) {
         var coords = {
@@ -106,7 +101,6 @@ socket.on('flota', function (data) {
     }
     console.log(flota);
 });
-
 function pintarClientes(numcam) {
     if (verclientes) {
         if (numcam) {
@@ -132,6 +126,7 @@ function pintarClientes(numcam) {
             //map.setCenter(inicio);
         }
     }
+
 }
 $(document).on('change', '#vercli', function () {
     if (this.checked) {
@@ -142,7 +137,6 @@ $(document).on('change', '#vercli', function () {
         borrarClientes();
     }
 });
-
 $(document).on('change', '#verrut', function () {
     if (this.checked) {
         verrutas = true;
@@ -152,12 +146,11 @@ $(document).on('change', '#verrut', function () {
         borrarRutas();
     }
 });
-
-
 //$(document).on("change", "#flota", function () {
 function cambioFlota(selected) {
     borrarClientes();
     borrarRutas();
+    pintarNomcam(selected);
     console.log(flota);
     if (selected === 'all') {
         map.setZoom(12);
@@ -212,6 +205,8 @@ socket2.on('cli', function (data) {
                 lng: parseFloat(data[i].XCoord)
             },
             title: data[i].nombreCliente,
+            idCliente: data[i].idCliente,
+            nombreCliente: data[i].nombreCliente,
             icon: '/imgs/customer.png',
             map: map
         });
@@ -230,7 +225,6 @@ socket2.on('cli', function (data) {
 //        imagePath: imgPaths
 //    });
 });
-
 socket3.on('rut', function (data) {
     //console.log(data);
     var i, j, array;
@@ -246,9 +240,9 @@ socket3.on('rut', function (data) {
             paths: array,
             strokeColor: '#ff6262', //rojo
             strokeOpacity: 0.5,
-            strokeWeight: 1,
+            strokeWeight: 2,
             fillColor: '#ff6262', //rojo
-            fillOpacity: 0.1,
+            fillOpacity: 0.0,
             title: data[i].ruta,
             transporte: data[i].idTransportista,
             planilla: data[i].numeroPlanilla,
@@ -267,7 +261,6 @@ socket3.on('rut', function (data) {
 
     }
     console.log(rutas);
-
 //        
 //        var cliente = new google.maps.Marker({
 //            position: {
@@ -286,9 +279,6 @@ socket3.on('rut', function (data) {
 //        imagePath: imgPaths
 //    });
 });
-
-
-
 function borrarClientes() {
     //if (clientes.length) {
     //markerCluster.remove();
@@ -327,13 +317,13 @@ function pintarRutas(numcam) {
 
 function borrarRutas() {
     if (rutas) {
-        //markerCluster.remove();
+//markerCluster.remove();
 //        for (var i = 0; i < rutas.length; i++) {
 //            rutas[i].setMap(null);
 //        }
         $.each(rutas, function (key, item) {
-            //console.log(item);
-            //rutas[key].map = null;
+//console.log(item);
+//rutas[key].map = null;
             $.each(item, function (key, value) {
                 value.setMap(null);
                 //console.log(clientes[key].map);
@@ -412,6 +402,8 @@ function cargarClientes(database) {
                 var cliente = new google.maps.Marker({
                     position: position,
                     title: respuesta[i].nombreCliente,
+                    idCliente: respuesta[i].idCliente,
+                    nombreCliente: respuesta[i].nombreCliente,
                     icon: '/imgs/customer.png',
                     map: map
                 });
@@ -424,19 +416,60 @@ function cargarClientes(database) {
                 }
                 clientes.push(cliente);
             }
+            pintarAtendidos();
         }});
 }
 
 socket.on('prueba', function (data) {
-    console.log(clientes2);
+//console.log(marker);
     var marker = clientes2[data['idtransporte']][data['idcliente']];
+    console.log(clientes2[data['idtransporte']]);
+    var infowindow = new google.maps.InfoWindow({
+        content: '<p> Codigo: ' + data['idcliente'] + '</p>' +
+                '<p> Nombre: ' + marker.title + '</p>'
+    });
     if (data['estado']) {
         marker.setIcon('/imgs/customer2.png');
     } else {
         marker.setIcon('/imgs/customer3.png');
     }
+    infowindow.open(map, marker);
+    setTimeout(function () {
+        infowindow.close();
+    }, 3000);
     console.log(data);
 });
+function pintarAtendidos() {
+    $.ajax({
+        url: "get/" + database + "/estados/",
+        type: "POST",
+        success: function (respuesta) {
+            console.log(respuesta);
+            for (var i = 0; i < respuesta.length; i++) {
+                var cliente3 = clientes2[respuesta[i]['numcam']];
+                console.log(respuesta[i]['numcam']);
+                if (cliente3[respuesta[i]['idcliente']]) {
+                    if (!respuesta[i].estado) {
+                        cliente3[respuesta[i]['idcliente']].setIcon('/imgs/customer3.png');
+                    } else {
+                        cliente3[respuesta[i]['idcliente']].setIcon('/imgs/customer2.png');
+                    }
+                }
+            }
+        }
+    });
+}
+
+function pintarNomcam(nom) {
+    if (nom === 'all') {
+        $('#cam-panel').html('');
+    } else {
+        var html = '<kbd>';
+        html += flota[nom]['datos'].nombres;
+        html += '</kbd>';
+        $('#cam-panel').html(html);
+    }
+}
 
 function lastIndex(array) {
     return array[array.length - 1];

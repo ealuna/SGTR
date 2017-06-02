@@ -112,10 +112,24 @@ function emitGroup(socket) {
     }, 10000);
 }
 
-app.post('/post/resultado/:db', function (request, response) {
+app.post('/post/:db/resultado', function (request, response) {
     //var conn = require('./models/connection');
     console.log(request.body);
     //response.send(request.body);
-    io.of('/mapa').emit('prueba', request.body);
+    var result = request.body;
+     conn2.databases['terranorte']
+            .query('EXEC saveresult' 
+            + ' @numcam = ' + result.idtransporte
+            + ', @idcliente = ' + result.idcliente
+            + ', @resultado = ' + result.estado
+            + ', @planilla = ' + result.planilla
+            ).spread(
+            function (err, res) {
+                console.log(err);
+                io.of('/mapa').emit('prueba', request.body);
+            });  
+    
+    
+    //io.of('/mapa').emit('prueba', request.body);
     response.send(request.body);
 });
