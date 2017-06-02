@@ -8,7 +8,7 @@ var conn = require('./connection');
 var conn2 = require('./models/connection');
 var compression = require('compression');
 
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 

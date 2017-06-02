@@ -6,7 +6,10 @@ var imgPaths = 'https://developers.google.com/maps/documentation/javascript/exam
 var database = "terranorte";
 var markerCluster;
 var map;
-
+var inicio = {lat: -11.970892, lng: -77.071365};
+var focus = null;
+var verclientes = true;
+var verrutas = true;
 
 var clientes2 = {};
 var planilla = {};
@@ -29,7 +32,7 @@ var vendedor = {};
 //} 
 $(document).ready(function () {
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -11.970892, lng: -77.071365},
+        center: inicio,
         mapTypeControl: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         fullscreenControl: true,
@@ -105,32 +108,66 @@ socket.on('flota', function (data) {
 });
 
 function pintarClientes(numcam) {
-    if (numcam) {
-        $.each(clientes2[numcam], function (key, value) {
-            if (value) {
-                value.setMap(map);
-            }
-        });
-    } else {
-        $.each(clientes2, function (key, value) {
-            $.each(value, function (key, value) {
+    if (verclientes) {
+        if (numcam) {
+            //var bounds = new google.maps.LatLngBounds();
+            $.each(clientes2[numcam], function (key, value) {
                 if (value) {
+                    //bounds.extend(value.getPosition());
                     value.setMap(map);
                 }
             });
-        });
+            //map.setZoom(14);
+            //map.setCenter(bounds.getCenter());
+        } else {
+            $.each(clientes2, function (key, value) {
+                $.each(value, function (key, value) {
+                    if (value) {
+                        //bounds.extend(value.getPosition());
+                        value.setMap(map);
+                    }
+                });
+            });
+            //map.setZoom(12);
+            //map.setCenter(inicio);
+        }
     }
 }
+$(document).on('change', '#vercli', function () {
+    if (this.checked) {
+        verclientes = true;
+        pintarClientes(focus);
+    } else {
+        verclientes = false;
+        borrarClientes();
+    }
+});
+
+$(document).on('change', '#verrut', function () {
+    if (this.checked) {
+        verrutas = true;
+        pintarRutas(focus);
+    } else {
+        verrutas = false;
+        borrarRutas();
+    }
+});
 
 
-
-$(document).on("change", "#flota", function () {
+//$(document).on("change", "#flota", function () {
+function cambioFlota(selected) {
     borrarClientes();
     borrarRutas();
     console.log(flota);
-    var selected = $(this).val();
+    if (selected === 'all') {
+        map.setZoom(12);
+        map.setCenter(inicio);
+        focus = null;
+    } else {
+        focus = selected;
+    }
+    //var selected = $(this).val();
     $.each(flota, function (key, value) {
-        console.log(key + '  ' + selected);
         if (selected === 'all') {
             if (value['coords']) {
                 if (!value['coords']['visible']) {
@@ -139,17 +176,20 @@ $(document).on("change", "#flota", function () {
                 }
             }
             pintarClientes(null);
+            pintarRutas(null);
         } else {
             if (key === selected) {
                 if (value['coords']) {
                     if (!value['coords']['visible']) {
                         flota[key]['coords']['visible'] = true;
                         value['coords']['marker'].setMap(map);
+                        map.setZoom(14);
+                        map.setCenter(value['coords']['marker'].getPosition());
                     }
                 }
                 //socket2.emit('clientes', selected);
+                pintarRutas(selected);
                 pintarClientes(selected);
-
             } else {
                 if (flota[key]['coords']) {
                     if (value['coords']['visible']) {
@@ -160,7 +200,8 @@ $(document).on("change", "#flota", function () {
             }
         }
     });
-});
+}
+//});
 
 socket2.on('cli', function (data) {
     console.log(data);
@@ -213,13 +254,20 @@ socket3.on('rut', function (data) {
             planilla: data[i].numeroPlanilla,
             clientes: data[i].numcli
         });
-        if (!rutas[data[i].ruta]) {
-            rutas[data[i].ruta] = polygon;
-            rutas[data[i].ruta].setMap(map);
+        //var tmpRutas = rutas[data[i].idTransportista];
+        if (!rutas[data[i].idTransportista]) {
+            rutas[data[i].idTransportista] = {};
+            rutas[data[i].idTransportista][data[i].ruta] = polygon;
+            //rutas[data[i].ruta] = polygon;
+            polygon.setMap(map);
         } else {
-
+            rutas[data[i].idTransportista][data[i].ruta] = polygon;
+            polygon.setMap(map);
         }
+
     }
+    console.log(rutas);
+
 //        
 //        var cliente = new google.maps.Marker({
 //            position: {
@@ -257,6 +305,26 @@ function borrarClientes() {
     //}
 }
 
+function pintarRutas(numcam) {
+    if (verrutas) {
+        if (numcam) {
+            $.each(rutas[numcam], function (key, value) {
+                if (value) {
+                    value.setMap(map);
+                }
+            });
+        } else {
+            $.each(rutas, function (key, value) {
+                $.each(value, function (key, item) {
+                    if (item) {
+                        item.setMap(map);
+                    }
+                });
+            });
+        }
+    }
+}
+
 function borrarRutas() {
     if (rutas) {
         //markerCluster.remove();
@@ -266,9 +334,10 @@ function borrarRutas() {
         $.each(rutas, function (key, item) {
             //console.log(item);
             //rutas[key].map = null;
-
-            item.setMap(null);
-            //console.log(clientes[key].map);
+            $.each(item, function (key, value) {
+                value.setMap(null);
+                //console.log(clientes[key].map);
+            });
         });
     }
 }
@@ -283,17 +352,31 @@ function cargarFlota(database) {
         }});
 }
 
+//function cbxFlota(respuesta) {
+//    var html = '<select id="flota">';
+//    html += '<option value="all"> all </option>';
+//    for (var i = 0; i < respuesta.length; i++) {
+//        html += '<option value="' + respuesta[i].id + '">';
+//        html += respuesta[i].id;
+//        html += '</option>';
+//    }
+//    html += '</select>';
+//    $('#flota-panel').html(html);
+//}
 function cbxFlota(respuesta) {
-    var html = '<select id="flota">';
-    html += '<option value="all"> all </option>';
+    var img = '<img src="/imgs/camion.png"'
+    var html = '<ul>';
+    html += '<li>' + img + 'onclick="cambioFlota(\'all\')"> Todos </li>';
     for (var i = 0; i < respuesta.length; i++) {
-        html += '<option value="' + respuesta[i].id + '">';
+        html += '<li>' + img + 'onclick="cambioFlota(\'';
+        html += respuesta[i].id + '\')"> ';
         html += respuesta[i].id;
-        html += '</option>';
+        html += '</li>';
     }
-    html += '</select>';
-    $('#flota-panel').html(html);
+    html += '</ul>';
+    $('#menu').html(html);
 }
+
 
 function aderirFlota(respuesta) {
     for (var i = 0; i < respuesta.length; i++) {
